@@ -52,11 +52,11 @@ router.get('/search', validateSearch, asyncHandler(searchDoctors));
 router.get('/nearby', asyncHandler(getNearbyDoctors));
 
 /**
- * @route   GET /api/doctors/specialization/:specialization
- * @desc    Get doctors by specialization
+ * @route   GET /api/doctors/specialization/:specializationId
+ * @desc    Get doctors by specialization ID
  * @access  Public
  */
-router.get('/specialization/:specialization', validatePagination, asyncHandler(getDoctorsBySpecialization));
+router.get('/specialization/:specializationId', validatePagination, validateObjectId('specializationId'), asyncHandler(getDoctorsBySpecialization));
 
 /**
  * @route   POST /api/doctors

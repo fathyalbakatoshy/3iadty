@@ -44,7 +44,7 @@ const getAllDoctors = async (req, res) => {
     }
 
     if (specialization) {
-      query.specialization = new RegExp(specialization, 'i');
+      query.specialization = specialization;
     }
 
     if (city) {
@@ -62,7 +62,6 @@ const getAllDoctors = async (req, res) => {
     if (search) {
       query.$or = [
         { name: new RegExp(search, 'i') },
-        { specialization: new RegExp(search, 'i') },
         { tags: { $in: [new RegExp(search, 'i')] } }
       ];
     }
@@ -78,6 +77,7 @@ const getAllDoctors = async (req, res) => {
     // Execute query
     const doctors = await Doctor.find(query)
       .populate('userId', 'fullName mobile email')
+      .populate('specialization', 'name code description icon')
       .populate('clinics.clinicId', 'name location.address')
       .sort(sortObj)
       .skip(skip)
@@ -130,6 +130,10 @@ const getDoctorById = async (req, res) => {
       {
         path: 'userId',
         select: 'fullName mobile email -_id'
+      },
+      {
+        path: 'specialization',
+        select: 'name code description icon'
       },
       {
         path: 'clinics.clinicId',
@@ -290,7 +294,9 @@ const searchDoctors = async (req, res) => {
       return sendError(res, 'كلمة البحث يجب أن تكون حرفين على الأقل', 400);
     }
 
-    const doctors = await Doctor.searchDoctors(q, filters);
+    const doctors = await Doctor.searchDoctors(q, filters)
+      .populate('userId', 'fullName')
+      .populate('specialization', 'name code description icon');
 
     return sendSuccess(res, SUCCESS_MESSAGES.RETRIEVED_SUCCESSFULLY, doctors);
 
@@ -305,16 +311,21 @@ const searchDoctors = async (req, res) => {
  */
 const getDoctorsBySpecialization = async (req, res) => {
   try {
-    const { specialization } = req.params;
+    const { specializationId } = req.params;
     const { page = 1, limit = 10 } = req.query;
 
-    const doctors = await Doctor.findBySpecialization(specialization)
+    const doctors = await Doctor.find({
+      specialization: specializationId,
+      isActive: true,
+      isAcceptingPatients: true
+    })
       .populate('userId', 'fullName')
+      .populate('specialization', 'name code description icon')
       .skip((page - 1) * limit)
       .limit(parseInt(limit));
 
     const totalDoctors = await Doctor.countDocuments({
-      specialization: new RegExp(specialization, 'i'),
+      specialization: specializationId,
       isActive: true,
       isAcceptingPatients: true
     });
@@ -349,7 +360,8 @@ const getNearbyDoctors = async (req, res) => {
       parseFloat(longitude),
       parseFloat(latitude),
       parseInt(maxDistance)
-    ).populate('userId', 'fullName');
+    ).populate('userId', 'fullName')
+     .populate('specialization', 'name code description icon');
 
     return sendSuccess(res, SUCCESS_MESSAGES.RETRIEVED_SUCCESSFULLY, doctors);
 
@@ -368,7 +380,8 @@ const addDoctorToClinic = async (req, res) => {
     const { workingDays, specialRole } = req.body;
 
     // Find doctor and clinic
-    const doctor = await Doctor.findById(doctorId);
+    const doctor = await Doctor.findById(doctorId)
+      .populate('specialization', 'name code description icon');
     const clinic = await Clinic.findById(clinicId);
 
     if (!doctor || !clinic) {
@@ -413,7 +426,8 @@ const removeDoctorFromClinic = async (req, res) => {
     const { doctorId, clinicId } = req.params;
 
     // Find doctor and clinic
-    const doctor = await Doctor.findById(doctorId);
+    const doctor = await Doctor.findById(doctorId)
+      .populate('specialization', 'name code description icon');
     const clinic = await Clinic.findById(clinicId);
 
     if (!doctor || !clinic) {
@@ -444,7 +458,8 @@ const getDoctorStats = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const doctor = await Doctor.findById(id);
+    const doctor = await Doctor.findById(id)
+      .populate('specialization', 'name code description icon');
     if (!doctor) {
       return sendNotFound(res, 'الطبيب غير موجود');
     }

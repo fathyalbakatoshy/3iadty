@@ -23,7 +23,7 @@ router.get('/doctors', validatePagination, asyncHandler(async (req, res) => {
   };
   
   if (specialization) {
-    query.specialization = new RegExp(specialization, 'i');
+    query.specialization = specialization;
   }
   
   if (city) {
@@ -34,6 +34,7 @@ router.get('/doctors', validatePagination, asyncHandler(async (req, res) => {
   
   const doctors = await Doctor.find(query)
     .populate('userId', 'fullName')
+    .populate('specialization', 'name code description icon')
     .select('name slug specialization consultationFee stats.averageRating stats.totalReviews profilePicture location.address.city isPhoneVisible')
     .sort({ 'stats.averageRating': -1, createdAt: -1 })
     .skip(skip)
@@ -69,6 +70,7 @@ router.get('/doctor/:slug', asyncHandler(async (req, res) => {
     isActive: true 
   })
   .populate('userId', 'fullName')
+  .populate('specialization', 'name code description icon')
   .populate('clinics.clinicId', 'name location.address phones workingHours')
   .select('-userId.password -userId.otp')
   .lean();

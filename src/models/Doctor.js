@@ -26,9 +26,9 @@ const doctorSchema = new mongoose.Schema({
   },
   
   specialization: {
-    type: String,
-    required: [true, 'التخصص مطلوب'],
-    trim: true
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Specialization',
+    required: [true, 'التخصص مطلوب']
   },
   
   subSpecialization: {
@@ -282,7 +282,18 @@ doctorSchema.index({ createdAt: -1 });
 doctorSchema.pre('save', async function(next) {
   if (this.isNew || this.isModified('name') || this.isModified('specialization')) {
     const { generateUniqueSlug } = require('../utils/slug');
-    const slugText = `${this.name} ${this.specialization}`;
+    // Get specialization name for slug
+    let specializationName = '';
+    if (this.specialization) {
+      if (typeof this.specialization === 'string') {
+        specializationName = this.specialization;
+      } else {
+        const Specialization = require('./Specialization');
+        const specialization = await Specialization.findById(this.specialization);
+        specializationName = specialization ? specialization.name : '';
+      }
+    }
+    const slugText = `${this.name} ${specializationName}`;
     this.slug = await generateUniqueSlug(slugText, this.constructor, 'slug', this._id);
   }
   next();
@@ -323,9 +334,9 @@ doctorSchema.methods.updateRating = function(newRating) {
 };
 
 // Static method to find by specialization
-doctorSchema.statics.findBySpecialization = function(specialization) {
+doctorSchema.statics.findBySpecialization = function(specializationId) {
   return this.find({ 
-    specialization: new RegExp(specialization, 'i'),
+    specialization: specializationId,
     isActive: true,
     isAcceptingPatients: true
   });
@@ -359,7 +370,6 @@ doctorSchema.statics.searchDoctors = function(searchQuery, filters = {}) {
   if (searchQuery) {
     query.$or = [
       { name: new RegExp(searchQuery, 'i') },
-      { specialization: new RegExp(searchQuery, 'i') },
       { tags: { $in: [new RegExp(searchQuery, 'i')] } }
     ];
   }

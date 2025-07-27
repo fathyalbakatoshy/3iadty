@@ -246,6 +246,46 @@ const validateAppointmentBooking = [
 ];
 
 /**
+ * Specialization validation
+ */
+const validateSpecialization = [
+  body('name')
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('اسم التخصص يجب أن يكون بين 2 و 100 حرف'),
+  
+  body('code')
+    .trim()
+    .isLength({ min: 2, max: 20 })
+    .withMessage('كود التخصص يجب أن يكون بين 2 و 20 حرف')
+    .matches(/^[A-Z0-9_]+$/)
+    .withMessage('كود التخصص يجب أن يحتوي على أحرف كبيرة وأرقام وشرطة سفلية فقط'),
+  
+  body('description')
+    .trim()
+    .isLength({ min: 10, max: 500 })
+    .withMessage('وصف التخصص يجب أن يكون بين 10 و 500 حرف'),
+  
+  body('commonConditions')
+    .optional()
+    .isArray()
+    .withMessage('الأمراض الشائعة يجب أن تكون مصفوفة'),
+  
+  body('commonConditions.*')
+    .if(body('commonConditions').exists())
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('اسم الحالة يجب أن يكون بين 2 و 50 حرف'),
+  
+  body('icon')
+    .optional()
+    .isLength({ max: 10 })
+    .withMessage('الأيقونة لا يجب أن تتجاوز 10 أحرف'),
+  
+  handleValidationErrors
+];
+
+/**
  * Medical record validation
  */
 const validateMedicalRecord = [
@@ -384,6 +424,7 @@ module.exports = {
   validateAppointmentBooking,
   validateMedicalRecord,
   validateReview,
+  validateSpecialization,
   validateObjectId,
   validatePagination,
   validateDateRange,

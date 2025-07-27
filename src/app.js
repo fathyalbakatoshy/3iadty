@@ -27,6 +27,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const publicRoutes = require('./routes/publicRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
 const realTimeRoutes = require('./routes/realTimeRoutes');
+const specializationRoutes = require('./routes/specializationRoutes');
 
 // Create Express app
 const app = express();
@@ -102,6 +103,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
 app.use('/api/realtime', realTimeRoutes);
+app.use('/api/specializations', specializationRoutes);
 app.use('/api/public', publicRoutes);
 
 // API info endpoint
@@ -121,6 +123,7 @@ app.get('/api', (req, res) => {
       admin: '/api/admin',
       auditLogs: '/api/audit-logs',
       realtime: '/api/realtime',
+      specializations: '/api/specializations',
       public: '/api/public'
     },
     documentation: 'قريباً...',

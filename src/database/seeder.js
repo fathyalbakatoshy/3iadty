@@ -9,7 +9,9 @@ const Patient = require('../models/Patient');
 const Clinic = require('../models/Clinic');
 const Admin = require('../models/Admin');
 const AuditLog = require('../models/AuditLog');
+const Specialization = require('../models/Specialization');
 const { generateUniqueSlug } = require('../utils/slug');
+const { seedSpecializations } = require('./specializationSeeder');
 
 // Connect to database
 const connectDB = require('../config/database');
@@ -92,7 +94,7 @@ const seedDoctors = async () => {
       },
       doctor: {
         name: 'د. أحمد محمد الأحمد',
-        specialization: 'طب القلب',
+        specialization: 'قلب',
         subSpecialization: 'قسطرة القلب',
         biography: 'استشاري أمراض القلب والأوعية الدموية مع خبرة تزيد عن 15 عاماً في مجال طب القلب التداخلي',
         degrees: [
@@ -158,7 +160,7 @@ const seedDoctors = async () => {
       },
       doctor: {
         name: 'د. فاطمة علي الزهراني',
-        specialization: 'طب الأطفال',
+        specialization: 'أطفال',
         subSpecialization: 'حديثي الولادة',
         biography: 'استشارية طب الأطفال وحديثي الولادة مع اهتمام خاص بالرعاية الصحية للأطفال والتطعيمات',
         degrees: [
@@ -222,7 +224,7 @@ const seedDoctors = async () => {
       },
       doctor: {
         name: 'د. خالد عبدالله المطيري',
-        specialization: 'طب العظام',
+        specialization: 'عظام',
         subSpecialization: 'جراحة العمود الفقري',
         biography: 'استشاري جراحة العظام والعمود الفقري مع خبرة واسعة في علاج إصابات الملاعب وجراحات المناظير',
         degrees: [
@@ -273,6 +275,16 @@ const seedDoctors = async () => {
     const existingUser = await User.findOne({ email: doctorData.user.email });
     
     if (!existingUser) {
+      // Find specialization by name
+      const specialization = await Specialization.findOne({ 
+        name: doctorData.doctor.specialization 
+      });
+      
+      if (!specialization) {
+        console.log(`❌ التخصص غير موجود: ${doctorData.doctor.specialization}`);
+        continue;
+      }
+
       // Create user
       const doctorUser = new User(doctorData.user);
       await doctorUser.save();
@@ -286,6 +298,7 @@ const seedDoctors = async () => {
       // Create doctor profile
       const doctor = new Doctor({
         ...doctorData.doctor,
+        specialization: specialization._id, // Use specialization ID instead of name
         userId: doctorUser._id,
         slug
       });
@@ -725,6 +738,7 @@ const runSeeder = async () => {
 
     // Run seeders
     await seedAdmins();
+    await seedSpecializations();
     await seedDoctors();
     await seedClinics();
     await seedPatients();
