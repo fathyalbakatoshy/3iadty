@@ -1,5 +1,9 @@
 const app = require('./app');
 const connectDB = require('./config/database');
+const { setupErrorHandlers } = require('./middlewares/errorHandler');
+const { initializeRealTimeAudit } = require('./services/realTimeAudit');
+
+require('dotenv').config();
 
 // Get port from environment variable or use default
 const PORT = process.env.PORT || 5000;
@@ -7,16 +11,30 @@ const PORT = process.env.PORT || 5000;
 // Connect to database
 connectDB()
   .then(() => {
-    console.log('✅ Database connected successfully');
+    console.log('✅ قاعدة البيانات متصلة بنجاح');
     
     // Start server
     const server = app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🌐 Health check: http://localhost:${PORT}/health`);
+      console.log(`
+🟢 ✅ خادم عياداتنا يعمل على البورت ${PORT}
+🌐 البيئة: ${process.env.NODE_ENV || 'development'}
+🔗 الرابط: http://localhost:${PORT}
+📚 API: http://localhost:${PORT}/api
+🏥 مرحباً بك في منصة عياداتنا - كوم حمادة، البحيرة
+🔄 Real-time Audit: ${process.env.AUDIT_LOG_ENABLED !== 'false' ? 'مفعل' : 'معطل'}
+      `);
     });
 
-    // Graceful shutdown
+    // Initialize Real-time Audit System
+    if (process.env.AUDIT_LOG_ENABLED !== 'false') {
+      initializeRealTimeAudit(server);
+      console.log('🔴 نظام التتبع المباشر مفعل - Real-time Audit Active');
+    }
+
+    // Setup error handlers for graceful shutdown
+    setupErrorHandlers(server);
+
+    // Graceful shutdown handlers
     process.on('SIGTERM', () => {
       console.log('SIGTERM received, shutting down gracefully');
       server.close(() => {
@@ -35,6 +53,6 @@ connectDB()
 
   })
   .catch((error) => {
-    console.error('❌ Database connection failed:', error);
+    console.error('❌ فشل في الاتصال بقاعدة البيانات:', error);
     process.exit(1);
   }); 

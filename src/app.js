@@ -137,29 +137,7 @@ app.use(notFound);
 // Global error handler
 app.use(errorHandler);
 
-// Connect to database
-connectDB();
-
-// Start server
-const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
-  console.log(`
-🟢 ✅ خادم عياداتنا يعمل على البورت ${PORT}
-🌐 البيئة: ${process.env.NODE_ENV || 'development'}
-🔗 الرابط: http://localhost:${PORT}
-📚 API: http://localhost:${PORT}/api
-🏥 مرحباً بك في منصة عياداتنا - كوم حمادة، البحيرة
-🔄 Real-time Audit: ${process.env.AUDIT_LOG_ENABLED !== 'false' ? 'مفعل' : 'معطل'}
-  `);
-});
-
-// Initialize Real-time Audit System
-if (process.env.AUDIT_LOG_ENABLED !== 'false') {
-  initializeRealTimeAudit(server);
-  console.log('🔴 نظام التتبع المباشر مفعل - Real-time Audit Active');
-}
-
-// Setup error handlers for graceful shutdown
-setupErrorHandlers(server);
+// Export the app for use in server.js
+// Database connection and server startup will be handled in server.js
 
 module.exports = app; 
