@@ -12,7 +12,10 @@
     "lint": "eslint src/",
     "realtime:test": "node tests/realtime-test.js",
     "windows:install": "npm install --production",
-    "windows:setup": "copy env-template.txt .env && echo Please edit .env file with your configuration"
+    "windows:setup": "copy env-template.txt .env && echo Please edit .env file with your configuration",
+    "windows:start": "node src/server.js",
+    "windows:dev": "nodemon src/server.js",
+    "windows:check": "node -e \"console.log('Node.js version:', process.version); console.log('Port:', process.env.PORT || 5000);\""
   },
   "keywords": [
     "medical",

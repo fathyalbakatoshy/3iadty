@@ -2,7 +2,7 @@ const app = require('./app');
 const connectDB = require('./config/database');
 
 // Get port from environment variable or use default
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 // Connect to database
 connectDB()
