@@ -2,7 +2,7 @@
 # Copy this file to .env and update the values
 
 # Database Configuration - إعدادات قاعدة البيانات
-MONGODB_URI=mongodb://localhost:27017/3ayadty
+MONGODB_URI=mongodb+srv://fmalbakatoshy:sBrbVYgNyVu9cfTR@3yadty.ohy7g0p.mongodb.net/?retryWrites=true&w=majority&appName=3yadty
 DB_NAME=3ayadty
 
 # Server Configuration - إعدادات الخادم
