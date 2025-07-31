@@ -4,13 +4,15 @@
   "description": "Backend API for 3ayadatna Medical Platform - منصة عياداتنا الطبية - كوم حمادة، البحيرة، مصر مع Real-time Audit Logging",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
     "seed": "node src/database/seeder.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src/",
-    "realtime:test": "node tests/realtime-test.js"
+    "realtime:test": "node tests/realtime-test.js",
+    "windows:install": "npm install --production",
+    "windows:setup": "copy env-template.txt .env && echo Please edit .env file with your configuration"
   },
   "keywords": [
     "medical",
